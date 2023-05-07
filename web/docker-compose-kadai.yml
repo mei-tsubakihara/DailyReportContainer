@@ -1,0 +1,34 @@
+# バージョンの指定
+version: "3.9"
+# 各Dockerfileの指定
+services:
+  # WordPress用のコンテナ
+  web:
+    image: "wordpress:6.1.1-php8.2-apach"  # 設定したいコンテナイメージ名
+    ports:                # ポートフォワーディングの設定
+      - 80:80
+    links:                # このコンテナが依存するコンテナとそのコンテナ名の指定
+      - "db:db_container"
+    container_name: "wp_container" # このコンテナの名前の指定
+  
+  environment:
+    WORDPRESS_DB_HOST: db_container:3306 #接続先とポート番号の設定
+    WORDPRESS_DB_NAME: wordpress         #データベース名の設定
+    WORDPRESS_DB_USER: springuser        #データベースユーザの設定
+    WORDPRESS_DB_PASSWORD: ThePassword   #上記ユーザのパスワードの設定
+    
+  # MySQL用のコンテナ
+  db:
+    build: ./db
+    image: "myimage:db"
+    ports:
+      - 4306:3306
+    expose:               # 他のコンテナと通信できるポート番号の指定
+      - 3306
+    container_name: "db_container"
+    volumes:              # データの永続化の設定
+      - db_data:/var/lib/mysql       # ボリューム名:コンテナのディレクトリ
+
+# ボリュームの設定
+volumes:
+  db_data:
